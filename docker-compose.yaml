@@ -98,6 +98,19 @@ services:
       - "5434:5432"
     networks:
       - elastic
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.15.0
+    container_name: filebeat
+    user: root
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/logs:ro
+    command: [ "filebeat", "-e", "--strict.perms=false" ]
+    networks:
+      - elastic
 networks:
   elastic:
     driver: bridge
