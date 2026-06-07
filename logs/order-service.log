@@ -1,0 +1,90 @@
+2026-06-06 10:15:01.101 INFO  [order-service] [req-1001] c.a.orders.controller.OrderController - Received create order request orderId=ORD-10001 customerId=CUST-501 amount=2499.00
+
+2026-06-06 10:15:01.145 INFO  [order-service] [req-1001] c.a.orders.service.OrderService - Validating order ORD-10001
+
+2026-06-06 10:15:01.188 INFO  [order-service] [req-1001] c.a.orders.service.InventoryClient - Calling Inventory Service for productId=PROD-101 quantity=2
+
+2026-06-06 10:15:01.452 INFO  [order-service] [req-1001] c.a.orders.service.InventoryClient - Inventory available for productId=PROD-101
+
+2026-06-06 10:15:01.661 DEBUG [order-service] [req-1001] org.hibernate.SQL - insert into orders(order_id,customer_id,amount,status) values (?,?,?,?)
+
+2026-06-06 10:15:01.782 INFO  [order-service] [req-1001] c.a.orders.repository.OrderRepository - Order persisted orderId=ORD-10001
+
+2026-06-06 10:15:01.905 INFO  [order-service] [req-1001] c.a.orders.messaging.OrderEventProducer - Publishing ORDER_CREATED event orderId=ORD-10001
+
+2026-06-06 10:15:01.989 INFO  [order-service] [req-1001] c.a.orders.controller.OrderController - Successfully created order ORD-10001
+
+----------------------------------------------------------------------------------------------------
+
+2026-06-06 10:17:10.022 INFO  [order-service] [req-1002] c.a.orders.controller.OrderController - Received create order request orderId=ORD-10002 customerId=CUST-789 amount=1299.00
+
+2026-06-06 10:17:10.104 INFO  [order-service] [req-1002] c.a.orders.service.OrderService - Validating order ORD-10002
+
+2026-06-06 10:17:10.187 INFO  [order-service] [req-1002] c.a.orders.service.InventoryClient - Calling Inventory Service for productId=PROD-999 quantity=1
+
+2026-06-06 10:17:15.251 WARN  [order-service] [req-1002] o.s.web.client.RestTemplate - Retrying inventory service call attempt=1
+
+2026-06-06 10:17:20.414 WARN  [order-service] [req-1002] o.s.web.client.RestTemplate - Retrying inventory service call attempt=2
+
+2026-06-06 10:17:25.677 ERROR [order-service] [req-1002] c.a.orders.service.InventoryClient - Failed to call Inventory Service after retries
+
+org.springframework.web.client.ResourceAccessException: I/O error on POST request for "http://inventory-service/api/check":
+Read timed out
+
+	at org.springframework.web.client.RestTemplate.doExecute(RestTemplate.java:791)
+	at org.springframework.web.client.RestTemplate.execute(RestTemplate.java:717)
+	at org.springframework.web.client.RestTemplate.postForObject(RestTemplate.java:443)
+	at com.acme.orders.service.InventoryClient.checkInventory(InventoryClient.java:52)
+	at com.acme.orders.service.OrderService.createOrder(OrderService.java:81)
+	at com.acme.orders.controller.OrderController.createOrder(OrderController.java:35)
+
+Caused by: java.net.SocketTimeoutException: Read timed out
+	at java.base/sun.nio.ch.NioSocketImpl.timedRead(NioSocketImpl.java:288)
+	at java.base/sun.nio.ch.NioSocketImpl.implRead(NioSocketImpl.java:314)
+
+2026-06-06 10:17:25.694 ERROR [order-service] [req-1002] c.a.orders.service.OrderService - Order creation failed orderId=ORD-10002 reason=Inventory Service Timeout
+
+2026-06-06 10:17:25.711 INFO  [order-service] [req-1002] c.a.orders.controller.OrderController - Returning HTTP 503 Service Unavailable
+
+----------------------------------------------------------------------------------------------------
+
+2026-06-06 10:20:44.114 INFO  [order-service] [req-1003] c.a.orders.controller.OrderController - Received create order request orderId=ORD-10003 customerId=CUST-902 amount=799.00
+
+2026-06-06 10:20:44.189 INFO  [order-service] [req-1003] c.a.orders.service.OrderService - Validating order ORD-10003
+
+2026-06-06 10:20:44.337 INFO  [order-service] [req-1003] c.a.orders.service.InventoryClient - Inventory available for productId=PROD-202
+
+2026-06-06 10:20:44.495 DEBUG [order-service] [req-1003] org.hibernate.SQL - insert into orders(order_id,customer_id,amount,status) values (?,?,?,?)
+
+2026-06-06 10:20:44.602 ERROR [order-service] [req-1003] o.h.engine.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "orders_pkey"
+
+2026-06-06 10:20:44.607 ERROR [order-service] [req-1003] c.a.orders.repository.OrderRepository - Failed to persist order ORD-10003
+
+org.springframework.dao.DataIntegrityViolationException: could not execute statement
+
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:281)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+
+Caused by: org.postgresql.util.PSQLException:
+ERROR: duplicate key value violates unique constraint "orders_pkey"
+Detail: Key (order_id)=(ORD-10003) already exists.
+
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713)
+
+2026-06-06 10:20:44.621 ERROR [order-service] [req-1003] c.a.orders.service.OrderService - Order creation failed orderId=ORD-10003 reason=Database Constraint Violation
+
+2026-06-06 10:20:44.639 INFO  [order-service] [req-1003] c.a.orders.controller.OrderController - Returning HTTP 409 Conflict
+
+----------------------------------------------------------------------------------------------------
+
+2026-06-06 10:25:11.103 INFO  [order-service] [req-1004] c.a.orders.controller.OrderController - Received create order request orderId=ORD-10004 customerId=CUST-321 amount=4999.00
+
+2026-06-06 10:25:11.209 INFO  [order-service] [req-1004] c.a.orders.service.OrderService - Validating order ORD-10004
+
+2026-06-06 10:25:11.458 INFO  [order-service] [req-1004] c.a.orders.service.InventoryClient - Inventory available for productId=PROD-555
+
+2026-06-06 10:25:11.651 INFO  [order-service] [req-1004] c.a.orders.repository.OrderRepository - Order persisted orderId=ORD-10004
+
+2026-06-06 10:25:11.883 INFO  [order-service] [req-1004] c.a.orders.messaging.OrderEventProducer - Publishing ORDER_CREATED event orderId=ORD-10004
+
+2026-06-06 10:25:11.972 INFO  [order-service] [req-1004] c.a.orders.controller.OrderController - Successfully created order ORD-10004
