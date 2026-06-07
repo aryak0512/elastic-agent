@@ -1,7 +1,8 @@
 filebeat.inputs:
   - type: filestream
     paths:
-      - /logs/elastic.log
+#      - /logs/elastic.log
+      - /logs/orderservice.log
 
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]
